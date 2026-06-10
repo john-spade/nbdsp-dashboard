@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase/client";
+import { getClientAuth } from "@/lib/firebase/client";
 import { apiSend } from "@/lib/api/client";
 import { defaultRouteFor, isRole } from "@/lib/auth/rbac";
 
@@ -26,7 +26,7 @@ export function LoginForm() {
     setError(null);
     setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(getClientAuth(), email, password);
       const idToken = await cred.user.getIdToken();
       const { role } = await apiSend<{ ok: true; role: string }>(
         "/api/auth/session",

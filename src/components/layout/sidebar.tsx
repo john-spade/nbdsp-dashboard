@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils/cn";
 import { can } from "@/lib/auth/rbac";
-import { auth } from "@/lib/firebase/client";
+import { getClientAuth } from "@/lib/firebase/client";
 import { apiSend } from "@/lib/api/client";
 import { Logo } from "@/components/ui/logo";
 import { useSidebarStore } from "@/lib/stores/sidebar";
@@ -32,7 +32,7 @@ export function Sidebar({ user }: { user: SessionUser }) {
   async function logout() {
     try {
       await apiSend("/api/auth/session", "DELETE");
-      await signOut(auth);
+      await signOut(getClientAuth());
     } finally {
       router.replace("/login");
       router.refresh();

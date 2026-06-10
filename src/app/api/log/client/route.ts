@@ -21,7 +21,10 @@ const ALLOWED: AuditAction[] = [
  */
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ ok: false }, { status: 401 });
+  // Fire-and-forget telemetry: when there is no session (e.g. Web Vitals firing
+  // on the public /login page) silently no-op with 204 rather than surfacing a
+  // 401 network error in the browser console. Nothing is attributed/logged.
+  if (!user) return new NextResponse(null, { status: 204 });
 
   const body = await req.json().catch(() => null);
   const action: AuditAction = ALLOWED.includes(body?.action) ? body.action : "page.visit";

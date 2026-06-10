@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "NBDSP Dashboard | National Birth Defects Surveillance",
   description:
     "Healthcare analytics dashboard for the National Birth Defects Surveillance Project.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

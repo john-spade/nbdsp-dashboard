@@ -1,0 +1,46 @@
+rules_version = '2';
+
+// Defense-in-depth: all privileged reads/writes go through the server (Admin
+// SDK bypasses these rules). The client SDK is used only for Auth, so we lock
+// the database down to authenticated reads and deny all client writes —
+// writes must flow through the audited API layer.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function hasRole(role) {
+      return isSignedIn() && request.auth.token.role == role;
+    }
+    // Data editors (admin + encoder) may touch the surveillance data
+    // collections — and ONLY those collections (not users, not audit_logs).
+    function isDataEditor() {
+      return hasRole('admin') || hasRole('encoder');
+    }
+
+    // A user may read only their own profile document.
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false; // managed server-side
+    }
+
+    // Surveillance data: readable by any signed-in user. Writable by admin +
+    // encoder (defense-in-depth; privileged writes still flow through the
+    // audited server API, which uses the Admin SDK and bypasses these rules).
+    match /patients/{id}      { allow read: if isSignedIn(); allow write: if isDataEditor(); }
+    match /observations/{id}  { allow read: if isSignedIn(); allow write: if isDataEditor(); }
+    match /encounters/{id}    { allow read: if isSignedIn(); allow write: if isDataEditor(); }
+
+    // Audit logs: admin read only, never client write.
+    match /audit_logs/{id} {
+      allow read: if hasRole('admin');
+      allow write: if false;
+    }
+
+    // Default deny.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

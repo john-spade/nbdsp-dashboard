@@ -1,0 +1,40 @@
+# Firebase App Hosting — runs the Next.js SSR server (API routes + RSC need a
+# Node server, which classic Firebase Hosting cannot provide on its own).
+# Secrets (FIREBASE_ADMIN_*) are referenced from Cloud Secret Manager, NOT
+# committed here. Create them with:
+#   firebase apphosting:secrets:set FIREBASE_ADMIN_PRIVATE_KEY
+runConfig:
+  minInstances: 0
+  maxInstances: 2
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  # Public client config — safe to inline as build-time vars.
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyDDHzkeUV5qV2ItzLKyyiLmsy9Bc4-VbvE
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: up-demo-9c45f.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: up-demo-9c45f
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: up-demo-9c45f.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "645684698202"
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:645684698202:web:6907059744418669448c63
+    availability: [BUILD, RUNTIME]
+
+  # Server secrets — stored in Cloud Secret Manager, injected at runtime.
+  - variable: FIREBASE_ADMIN_PROJECT_ID
+    secret: FIREBASE_ADMIN_PROJECT_ID
+  - variable: FIREBASE_ADMIN_CLIENT_EMAIL
+    secret: FIREBASE_ADMIN_CLIENT_EMAIL
+  - variable: FIREBASE_ADMIN_PRIVATE_KEY
+    secret: FIREBASE_ADMIN_PRIVATE_KEY
